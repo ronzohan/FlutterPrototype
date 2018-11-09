@@ -44,6 +44,9 @@ flutter:
     - assets/images/ic_digital.png
     - assets/images/ic_badge.png
     - assets/images/ic_scan.png
+    - assets/images/ic_gcash.png
+    - assets/images/ic_booking.png
+    - assets/images/ic_restaurant.png
 
   fonts:
     - family: OpenSans
