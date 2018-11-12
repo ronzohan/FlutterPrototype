@@ -6,7 +6,7 @@ import 'package:rush_revamp/ui/styles/fonts.dart';
 import 'package:rush_revamp/ui/styles/colors.dart';
 import 'package:rush_revamp/ui/rush_ui/rush_button.dart';
 import 'package:rush_revamp/ui/routes.dart';
-
+import 'package:rush_revamp/api/api_manager.dart';
 
 const backButtonImageName = 'assets/images/ic_back.png';
 
@@ -121,13 +121,18 @@ class _LoginPageState extends State<LoginPage> {
     return RushButton(
       title: 'LOGIN',
       onPressed: () {
-        Navigator.pushNamedAndRemoveUntil(
-            context,
-            Routes.DASHBOARD_PAGE, (route) {
-              return false;
+        APIManager()
+            .loginUser('9359132979', '1234')
+            .then((response) {
+              if (response.token.isNotEmpty) {
+                Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    Routes.DASHBOARD_PAGE, (route) {
+                  return false;
+                });
+              }
             });
-        //Navigator.replace(context, oldRoute: null, newRoute: null)
-        Navigator.pushReplacementNamed(context, Routes.DASHBOARD_PAGE);
+
       },
     );
   }
