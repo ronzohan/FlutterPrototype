@@ -38,6 +38,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    # Icons
     - assets/images/ic_next.png
     - assets/images/ic_gift_coin.png
     - assets/images/ic_placeholder.png
@@ -47,6 +48,11 @@ flutter:
     - assets/images/ic_gcash.png
     - assets/images/ic_booking.png
     - assets/images/ic_restaurant.png
+    - assets/images/ic_back.png
+    - assets/images/ic_clear.png
+
+    # Placeholders
+    - assets/images/logo_placeholder.png
 
   fonts:
     - family: OpenSans
