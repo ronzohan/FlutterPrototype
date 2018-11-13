@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 
 class RewardsItem extends StatelessWidget {
+  String name;
+  String description;
+  String imageURL;
+  int points;
+
+  RewardsItem({this.name, this.description, this.imageURL, this.points});
+
   @override
   Widget build(BuildContext context) {
     final placeholderImageName = 'assets/images/ic_placeholder.png';
@@ -15,14 +22,15 @@ class RewardsItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4.0),
                 color: Color(0xFFE5E5EA),
               ),
-              child: Image.asset(placeholderImageName),
+              child: Image.network(this.imageURL, fit: BoxFit.cover,),
             )
           ),
           SizedBox(
             height: 4.0,
           ),
           Text(
-            'One (1) Large NY Style Super Supereme Pizza',
+            this.name,
+            maxLines: 2,
             style: TextStyle(
               fontFamily: 'OpenSans',
               fontWeight: FontWeight.w600,
@@ -35,7 +43,7 @@ class RewardsItem extends StatelessWidget {
             height: 3.0,
           ),
           Text(
-            '20 Points',
+            "${this.points} Point" + "${this.points > 1 ? "s" : "" }",
             style: TextStyle(
               fontFamily: 'OpenSans',
               fontWeight: FontWeight.normal,

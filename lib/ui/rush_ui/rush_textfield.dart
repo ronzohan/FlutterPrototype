@@ -3,6 +3,7 @@ import 'package:rush_revamp/ui/styles/colors.dart';
 import 'package:rush_revamp/ui/styles/fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 
 const closeImageName = 'assets/images/ic_clear.png';
 

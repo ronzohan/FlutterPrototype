@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 class DashboardHeader extends StatelessWidget {
+  String name;
+  String mobileNumber;
+
+  DashboardHeader({this.name, this.mobileNumber});
+
   @override
   Widget build(BuildContext context) {
     return _buildProfileInfo();
@@ -63,7 +68,7 @@ class DashboardHeader extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            'John',
+            this.name,
             style: TextStyle(
                 color: Colors.white,
                 fontFamily: 'OpenSans',
@@ -72,7 +77,7 @@ class DashboardHeader extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           Text(
-            'Member',
+            this.mobileNumber,
             style: TextStyle(
               color: Color(0xFFFFFFFF),
               fontSize: 10.0,

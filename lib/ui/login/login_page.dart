@@ -11,9 +11,6 @@ import 'package:rush_revamp/api/api_manager.dart';
 const backButtonImageName = 'assets/images/ic_back.png';
 
 class LoginPage extends StatefulWidget {
-  String mobileNumber;
-  String pin;
-
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -46,20 +43,22 @@ class _LoginPageState extends State<LoginPage> {
           padding: EdgeInsets.all(0.0),
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            LoginHeader(),
-            _buildForms(),
-            SizedBox(height: 29.0),
-            _buildForgotPinButton(),
-            SizedBox(height: 29.0),
-            _buildLoginButton()
-          ],
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              LoginHeader(),
+              _buildForms(),
+              SizedBox(height: 29.0),
+              _buildForgotPinButton(),
+              SizedBox(height: 29.0),
+              _buildLoginButton()
+            ],
+          ),
         ),
-      ),
+      )
     );
   }
 
@@ -90,6 +89,7 @@ class _LoginPageState extends State<LoginPage> {
       obscureText: true,
       maxLength: 4,
     );
+    pinTextController = pinTextField.textEditingController;
     return pinTextField;
   }
 
@@ -121,18 +121,19 @@ class _LoginPageState extends State<LoginPage> {
     return RushButton(
       title: 'LOGIN',
       onPressed: () {
-        APIManager()
-            .loginUser('9359132979', '1234')
-            .then((response) {
-              if (response.token.isNotEmpty) {
-                Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    Routes.DASHBOARD_PAGE, (route) {
-                  return false;
-                });
-              }
-            });
-
+        APIManager.shared.merchantToken().then((merchantTokenResponse) {
+          APIManager.shared.loginUser(
+            loginTextController.text, 
+            pinTextController.text).then((loginResponse) {
+            if (loginResponse.message == null) {
+              Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  Routes.DASHBOARD_PAGE, (route) {
+                return false;
+              });
+            }
+          });
+        });
       },
     );
   }

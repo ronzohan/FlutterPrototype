@@ -1,24 +1,23 @@
 import 'package:http/http.dart';
 import 'models/login_response.dart';
+import 'models/merchant_token_response.dart';
+import 'models/rewards_list.dart';
 import 'dart:convert';
-
-// API Client
-class APIClient {
-  APIClient({String baseURL});
-
-//  Future<T> fetchURL<T>(String url) async {
-//    final response = await get(url);
-//
-//    if (response.statusCode == 200) {
-//      return LoginResponse.fromJson(json)
-//    }
-//  }
-}
 
 // API Manager
 class APIManager {
+  static final APIManager shared = APIManager._internal();
+  
+  factory APIManager() {
+    return shared;
+  }
+
+  APIManager._internal();
+
+  final baseURL = 'https://rush-revamp.globedv.com';
+
   Future<LoginResponse> loginUser(String mobileNumber, String pin) async {
-    final url = 'https://rush-revamp.globedv.com/customer-service/customer/login/mobile';
+    final url = '$baseURL/customer-service/customer/login/mobile';
     final body = {
       'mobile_number': mobileNumber,
       'pin': pin
@@ -29,15 +28,77 @@ class APIManager {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'Application/x-www-form-urlencoded',
-          'X-Merchant-Token':	'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJtZXJjaGFudC1zZXJ2aWNlIiwic3ViIjoiZDM2YjBhMmQtMzc4MS00MjU0LTgwMjUtMzUxMmFhODAwOGE4IiwiaWF0IjoxNTQyMDEwNzQ1LCJleHAiOjE1NDIwMTQzNDUsIm1lcmNoYW50Ijp7InV1aWQiOiI4OGQ2NWM1Yy02OWE5LTMzNGEtOWY5NC0yY2I1NzRkNzVmN2EiLCJuYW1lIjoiRGlnaXRhbCBWZW50dXJlczEiLCJwZXJtaXNzaW9ucyI6W119fQ.aMKnWbuXehNOy27QJ562yApR89MGPxE8UlYEKeOSE_4dvuMAzN3xiaXLUAQr6te-meb3TgK82Bf5lmoPOHY1cb9aQtm1k_jWWpr5GHH2nGN-8WdOr30QqvDlgqqlg2BuwubGYR0gzP0U0vJZ3W1WrAyHZ6GMIUgQJJ0uuadDG4ltsLGuwlcc_gELMo8VcI4q9MGoeu5rvCoPphrloq5WcLXj2j6FOObIZ4ZDcJxf7l55jAJIiSjiRoLMucr8SfJjXhwALIMfsIfhV0p00qc0NtiIwdXk2X8gd1nNuURHrkLkVZgkf8Hcb2-gZYvd-6QRMx2K0Jq3JcBQRHbFHgG_wXLWwYVFMEpWl-F80GXamUF7tDwHzvHeL9M5q8haQPYLBV08Dblk-N06h1a-3milQoATW3AkpemPYFVBtzbzIT-DrExz4mmlm-034owDkaAKU5KZmspVj9KhxwpmgfeFzXhmuTxZChEnYuJU6Oc8YmdKtEoGERqxo3O4Vewm_bnbu0E7W3kvoU6bvecC-cTEeG9w5GdX5tiglicSaFrk5CvxK3Lbhu6LFPF778Y1x7_S3_x1qVgTGPTmvKu7_8lfVXlJRP23GF4M76qACggwarzAYmwxOm2uYn3JU8svQMFQmxK1lPeqql5htSyc2C2kQqJBbwQkPI8HriPSgVv4bcE',
+          'X-Merchant-Token':	Tokens.merchantToken
         },
         body: body
     );
 
     if (response.statusCode == 200) {
-      return LoginResponse.fromJson(json.decode(response.body));
+      var loginResponse = LoginResponse.fromJson(json.decode(response.body));
+      Tokens.loginToken = loginResponse.token;
+      UserManager.userMobileNumber = loginResponse.customer.email;
+      UserManager.userName = "${loginResponse.customer.firstname} + ${loginResponse.customer.lastname}";
+
+      return loginResponse;
     } else {
-      print('Failed to load post');
+      throw Exception('Error response');
     }
   }
+
+  Future<MerchantTokenResponse> merchantToken({
+    String apiKey = 'EUecwls4K0ON', 
+    String apiSecret = '2hayChGvEh1OE7dSTokaYchhvqEiQcWu'
+  }) async {
+    final url = '$baseURL/merchant-service/token/customer-app';
+    final body = {
+      'key': apiKey,
+      'secret': apiSecret
+    };
+
+    final response = await post(
+        url,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'Application/x-www-form-urlencoded',
+        },
+        body: body
+    );
+
+    if (response.statusCode == 200) {
+      var merchantTokenResponse = MerchantTokenResponse.fromJson(json.decode(response.body));
+      Tokens.merchantToken = merchantTokenResponse.token;
+      return merchantTokenResponse;
+    } else {
+      throw Exception('Error response');
+    }
+  }
+
+  Future<RewardsList> featuredRewards({int count}) async {
+    final url = '$baseURL/rewards-service/rewards/customer/featured/$count';
+
+    final response = await get(
+        url,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'Application/x-www-form-urlencoded',
+          'Authorization': Tokens.loginToken
+        }
+    );
+
+    if (response.statusCode == 200) {
+      return RewardsList.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Error response');
+    }
+  }
+}
+
+class Tokens {
+  static var merchantToken = '';
+  static var loginToken = '';
+}
+
+class UserManager {
+  static var userName = '';
+  static var userMobileNumber = '';
 }

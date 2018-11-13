@@ -1,19 +1,22 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'rewards_item.dart';
+import 'package:rush_revamp/api/models/rewards_list.dart';
 import 'shop_learn_more_header.dart';
+import 'package:rush_revamp/api/api_manager.dart';
 import 'menu_list.dart';
 import 'models/menu.dart';
 import 'dashboard_header.dart';
 import 'all_rewards_header.dart';
 import 'package:rush_revamp/ui/styles/colors.dart';
+import 'package:rush_revamp/api/api_manager.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
   _DashboardPageState createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> {
+class _DashboardPageState extends State<DashboardPage> with RouteAware {
 
   final List<Menu> items = [
     Menu(
@@ -43,6 +46,8 @@ class _DashboardPageState extends State<DashboardPage> {
     )
   ];
 
+ List<RewardsItem> rewardsList = [];
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -50,7 +55,10 @@ class _DashboardPageState extends State<DashboardPage> {
         children: [
           Container(
             child: SafeArea(
-              child: DashboardHeader(),
+              child: DashboardHeader(
+                name: UserManager.userName, 
+                mobileNumber: UserManager.userMobileNumber
+              ),
               bottom: false,
             ),
             color: RushRevampColors.orange,
@@ -87,18 +95,11 @@ class _DashboardPageState extends State<DashboardPage> {
                   top: false,
                   sliver: SliverPadding(
                     padding: EdgeInsets.only(left: 20.0, right: 20.0),
-                    sliver: SliverGrid(
-                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 200.0,
-                        crossAxisSpacing: 10.0,
-                        mainAxisSpacing: 10.0,
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                        (BuildContext context, int index) {
-                          return RewardsItem();
-                        },
-                        childCount: 10,
-                      ),
+                    sliver: SliverGrid.extent(
+                      maxCrossAxisExtent: 200.0,
+                      crossAxisSpacing: 10.0,
+                      mainAxisSpacing: 10.0,
+                      children: rewardsList,
                     ),
                   )
                 )
@@ -108,6 +109,27 @@ class _DashboardPageState extends State<DashboardPage> {
         ],
       )
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    APIManager.shared.featuredRewards(count: 4).then((rewardsList) {
+      updateGridView(rewards: rewardsList.list);
+    });
+  }
+
+  void updateGridView({List<Reward> rewards}) {
+    setState(() {
+      rewardsList = rewards.map((reward) {
+        return RewardsItem(
+          name: reward.name,
+          description: reward.description, 
+          imageURL: reward.image,
+          points: reward.points
+        );
+      }).toList();    
+    });
   }
 }
 
